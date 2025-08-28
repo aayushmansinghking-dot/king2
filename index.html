@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Details Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --pad: 14px; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #ff6b6b, #fddb92, #4facfe, #43e97b);
+    }
+    .wrap {
+      width: min(900px, 92vw);
+      background: rgba(255,255,255,0.85);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    h1 { margin: 0 0 12px; font-weight: 700; font-style: italic; }
+    .subtitle { margin-top: 0; opacity: 0.8; }
+    .page { display: none; }
+    .active { display: block; }
+    input, button, select, textarea {
+      padding: var(--pad);
+      border-radius: 12px;
+      border: 1px solid #333;
+      font-size: 16px;
+      margin: 8px;
+    }
+    input { text-transform: uppercase; width: 280px; }
+    button {
+      border: none;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+      padding: 12px 22px;
+    }
+    button:hover { background: #333; }
+    .stayaway {
+      color: red;
+      font-weight: 800;
+      font-size: clamp(40px, 10vw, 100px);
+      letter-spacing: 2px;
+      text-shadow: 0 2px 0 #00000022;
+    }
+    .details {
+      text-align: left;
+      margin: 12px auto 0;
+      padding: 16px;
+      background: #f7f7ff;
+      border: 1px dashed #777;
+      border-radius: 12px;
+      width: min(700px, 92%);
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+    .badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #e9f5ff;
+      border: 1px solid #b9dfff;
+      font-weight: 700;
+    }
+    .note { font-size: 13px; opacity: 0.75; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1><b><i>This website is created by Ayushman Singh</i></b></h1>
+    <p class="subtitle">SECOND SITE — Shows details based on valid NAME + PASSWORD → REGISTRATION NUMBER</p>
+
+    <!-- PAGE 1: OPEN -->
+    <div id="page1" class="page active">
+      <button onclick="goToPage(2)">ONLY AAYUSHMAN FRIENDS</button>
+      <p class="note">Tip: You can also open this page with query params, e.g. <code>?name=AYUSHMAN&reg=KING</code></p>
+    </div>
+
+    <!-- PAGE 2: LOGIN -->
+    <div id="page2" class="page">
+      <form onsubmit="return handleLogin()">
+        <div>
+          <input id="name" type="text" placeholder="ENTER NAME (IN CAPS)" required />
+        </div>
+        <div>
+          <input id="password" type="password" placeholder="ENTER PASSWORD (IN CAPS)" required />
+        </div>
+        <button type="submit">VIEW DETAILS</button>
+      </form>
+    </div>
+
+    <!-- PAGE 3: DETAILS -->
+    <div id="page3" class="page">
+      <div id="hello" class="badge"></div>
+      <h2 id="resultLine"></h2>
+      <div id="detailBox" class="details"></div>
+      <div style="margin-top:14px;">
+        <button onclick="resetFlow()">LOGOUT</button>
+      </div>
+    </div>
+
+    <!-- PAGE 4: STAY AWAY -->
+    <div id="page4" class="page">
+      <div class="stayaway">STAY AWAY</div>
+      <div style="margin-top:14px;">
+        <button onclick="resetFlow()">GO BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------
+    // 1) NAME → PASSWORD/REG RULES
+    // -----------------------------
+    // All keys/values UPPERCASE
+    const rules = {
+      "EKLAVYA":       "PITBULL EKLAVYA",
+      "PIYUSH":        "PUNDUCHERRY",
+      "ANSH":          "NAKCHAPTA",
+      "SATYAM":        "BLACK PLASTIC",
+      "HIMANSHU":      "BLACK DIAMOND",
+      "AYUSHMAN":      "KING"
+    };
+
+    // ---------------------------------------
+    // 2) REGISTRATION NUMBER → USER DETAILS
+    //    👇 Fill your custom details here
+    // ---------------------------------------
+    const detailsMap = {
+      "PITBULL EKLAVYA": `Name: EKLAVYA
+“Eklavya ka attitude bada hi ganda,
+padhai ke time bole – ‘abhi mood hai thoda nanga’,
+ladki dekhe toh ban jaaye Romeo anda,
+aur dost bolte – ‘bhai, tu toh full time ka launda-lafanga!’ ”.`,
+      "PUNDUCHERRY": `Name: PIYUSH
+piyush ki adaaen hai bada achha
+ladkiyon ke liye pyar hai uska sachha
+par propose karte hin 
+ladkiyan use bhagati hai kaha ke bachha.`,
+      "NAKCHAPTA": `Name: ANSH
+ansh ke sapne hamesha hoton pe muskaan laati hain
+par ladkiyan use dekhh kar bhaag jati hai
+google assistent se bechara karta tha baat
+google assistent se bechara karta tha baat
+par wo bhi ab use bhaiya bulati hai .`,
+      "BLACK PLASTIC": `Name: SATYAM
+satyam hai itna kaala
+jaise sadak me bahata naala
+raat me wo khhud ko khhud hi nahi pechaan paata
+islye saath me ek shishaa lekar aata `,
+      "BLACK DIAMOND": `Name: HIMANSHU
+error`,
+      "KING": `Name: AYUSHMAN.`
+    };
+
+    // -----------------------------
+    // Router helpers
+    // -----------------------------
+    function goToPage(n){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page'+n).classList.add('active'); }
+    function resetFlow(){ document.getElementById('name').value=''; document.getElementById('password').value=''; goToPage(1); }
+
+    // -----------------------------------
+    // 3) Credential Check + Show Details
+    // -----------------------------------
+    function handleLogin(){
+      const rawName = document.getElementById('name').value.trim();
+      const rawPass = document.getElementById('password').value.trim();
+      const name = rawName.toUpperCase();
+      const pass = rawPass.toUpperCase();
+
+      // Validate known user
+      if(!(name in rules)) { goToPage(4); return false; }
+
+      // Password must match rule (password == registration number per your spec)
+      const expected = rules[name]; // expected REG + PASSWORD (same string)
+      if(pass !== expected){ goToPage(4); return false; }
+
+      // Show personalized message
+      const regNumber = expected;
+      const welcome = `WELCOME MR ${name}, YOUR REGISTRATION NUMBER IS:`;
+      document.getElementById('hello').textContent = `LOGGED IN AS: ${name}`;
+      document.getElementById('resultLine').textContent = welcome + ' ' + regNumber;
+
+      // Lookup details by reg number
+      const details = detailsMap[regNumber] || "No details found for this registration number. Please update detailsMap.";
+      document.getElementById('detailBox').textContent = details;
+
+      goToPage(3);
+      return false; // prevent reload
+    }
+
+    // ----------------------------------------------------
+    // 4) Optional: Support URL params ?name=...&reg=...
+    //     If valid, auto-show details without form
+    // ----------------------------------------------------
+    (function autoFromQuery(){
+      const params = new URLSearchParams(location.search);
+      const qName = (params.get('name') || '').toUpperCase().trim();
+      const qReg  = (params.get('reg')  || '').toUpperCase().trim();
+      if(!qName || !qReg) return;
+
+      // Must be a known user, reg must match the rule
+      if(!(qName in rules)) { goToPage(4); return; }
+      if(rules[qName] !== qReg) { goToPage(4); return; }
+
+      // Show details directly
+      document.getElementById('hello').textContent = `LOGGED IN AS: ${qName}`;
+      document.getElementById('resultLine').textContent = `WELCOME MR ${qName}, YOUR REGISTRATION NUMBER IS: ${qReg}`;
+      const details = detailsMap[qReg] || "No details found for this registration number. Please update detailsMap.";
+      document.getElementById('detailBox').textContent = details;
+      goToPage(3);
+    })();
+  </script>
+</body>
+</html>
